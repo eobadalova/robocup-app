@@ -1,57 +1,40 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-/*eslint-disable*/
 import React from "react";
-
-// reactstrap components
+import { useNavigate } from "react-router-dom";
 import { Container, Nav, NavItem, NavLink } from "reactstrap";
+import facebookLogo from "../../assets/img/Facebook_Logo_2023.png";
 
+/**
+* Renders the footer component for the application.
+* The footer includes links to the university website, an "About the Competition" link, and a link to the Facebook page.
+* It also displays the copyright information for the current year.
+*/
 function Footer() {
+  const navigate = useNavigate();
+
   return (
     <footer className="footer">
       <Container fluid>
         <Nav>
           <NavItem>
-            <NavLink href="https://www.creative-tim.com/?ref=bdr-user-archive-footer">
-              Creative Tim
+            <NavLink href="https://www.utb.cz">
+              Univerzita Tomáše Bati ve Zlíně
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink href="https://www.creative-tim.com/presentation?ref=bdr-user-archive-footer">
-              About Us
+            <NavLink onClick={() => navigate('/admin/dashboard')}>
+              O soutěži
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink href="https://www.creative-tim.com/blog?ref=bdr-user-archive-footer">
-              Blog
+
+            <NavLink href="https://www.facebook.com/robogames.utb.cz">
+              Facebook
             </NavLink>
           </NavItem>
+          <img src={facebookLogo} alt="FB logo" style={{ maxWidth: '50%', height: '20px' }} />
         </Nav>
         <div className="copyright">
-          © {new Date().getFullYear()} made with{" "}
-          <i className="tim-icons icon-heart-2" /> by{" "}
-          <a
-            href="https://www.creative-tim.com/?ref=bdr-user-archive-footer"
-            target="_blank"
-          >
-            Creative Tim
-          </a>{" "}
-          for a better web.
+          © {new Date().getFullYear()} by Robogames Team
         </div>
       </Container>
     </footer>

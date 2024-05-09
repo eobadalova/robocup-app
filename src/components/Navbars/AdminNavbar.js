@@ -1,25 +1,16 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
+/**
+* The `AdminNavbar` component is the main navigation bar for the admin interface of the application. It handles the following functionality:
+* - Displays the user's name and profile picture in a dropdown menu
+* - Displays any pending team invitations the user has, with options to accept or reject them
+* - Provides a logout button to sign the user out of the application
+* - Toggles the visibility of the navigation menu on smaller screens
+* - Provides a search modal that can be opened and closed
+*
+* The component uses various React and Reactstrap components to implement its functionality, and it fetches user information and team invitations from the backend API.
 */
-import React from "react";
-// nodejs library that concatenates classes
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
-
-// reactstrap components
 import {
   Button,
   Collapse,
@@ -37,57 +28,176 @@ import {
   Modal,
   NavbarToggler,
   ModalHeader,
+  UncontrolledButtonDropdown,
 } from "reactstrap";
 
 function AdminNavbar(props) {
-  const [collapseOpen, setcollapseOpen] = React.useState(false);
-  const [modalSearch, setmodalSearch] = React.useState(false);
-  const [color, setcolor] = React.useState("navbar-transparent");
-  React.useEffect(() => {
+  const navigate = useNavigate();
+  const [collapseOpen, setCollapseOpen] = useState(false);
+  const [modalSearch, setModalSearch] = useState(false);
+  const [color, setColor] = useState("navbar-transparent");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: '', surname: '' });
+  const [invitations, setInvitations] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+    if (token) {
+      fetchUserInfo();
+      fetchInvitations();
+    }
     window.addEventListener("resize", updateColor);
-    // Specify how to clean up after this effect:
-    return function cleanup() {
+    return () => {
       window.removeEventListener("resize", updateColor);
     };
-  });
-  // function that adds color white/transparent to the navbar on resize (this is for the collapse)
+  }, []);
+
+
+
+  // Fetch team invitations for the user
+  const fetchInvitations = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}api/user/getTeamInvitations`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setInvitations(result.data);
+
+
+      } else {
+        console.error('Failed to fetch team invitations:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching team invitations:', error);
+    }
+  };
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+    if (token) {
+      fetchUserInfo();
+    }
+    window.addEventListener("resize", updateColor);
+    return () => {
+      window.removeEventListener("resize", updateColor);
+    };
+  }, []);
+
+
+  // Accept a team invitation
+  const acceptInvitation = async (invitationId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}api/team/acceptInvitation?id=${invitationId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Invitation accepted:', result);
+      } else {
+        console.error('Failed to accept invitation:', result.message);
+      }
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+    }
+  };
+
+  // Reject a team invitation
+  const rejectInvitation = async (invitationId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}api/team/rejectInvitation?id=${invitationId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Invitation rejected:', result);
+      } else {
+        console.error('Failed to reject invitation:', result.message);
+      }
+    } catch (error) {
+      console.error('Error rejecting invitation:', error);
+    }
+  };
+
+
+
+
+  // Fetch user information
+  const fetchUserInfo = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}api/user/info`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setUserInfo({ name: result.data.name, surname: result.data.surname });
+      } else {
+        console.error('Failed to fetch user information:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching user information:', error);
+    }
+  };
+
+  // Update the color of the navbar based on screen size and collapse state
   const updateColor = () => {
-    if (window.innerWidth < 993 && collapseOpen) {
-      setcolor("bg-white");
-    } else {
-      setcolor("navbar-transparent");
-    }
+    setColor(window.innerWidth < 993 && collapseOpen ? "bg-white" : "navbar-transparent");
   };
-  // this function opens and closes the collapse on small devices
+
+  // Toggle the collapse state of the navbar
   const toggleCollapse = () => {
-    if (collapseOpen) {
-      setcolor("navbar-transparent");
-    } else {
-      setcolor("bg-white");
-    }
-    setcollapseOpen(!collapseOpen);
+    setColor(!collapseOpen ? "bg-white" : "navbar-transparent");
+    setCollapseOpen(!collapseOpen);
   };
-  // this function is to open the Search modal
+
+  // Toggle the visibility of the search modal
   const toggleModalSearch = () => {
-    setmodalSearch(!modalSearch);
+    setModalSearch(!modalSearch);
   };
+
+  // Handle user logout
+  const handleLogout = async () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('roles');
+    localStorage.removeItem('UserID');
+    setIsLoggedIn(false);
+    navigate('/robogames/login');
+  };
+
   return (
     <>
       <Navbar className={classNames("navbar-absolute", color)} expand="lg">
         <Container fluid>
           <div className="navbar-wrapper">
-            <div
-              className={classNames("navbar-toggle d-inline", {
-                toggled: props.sidebarOpened,
-              })}
-            >
-              <NavbarToggler onClick={props.toggleSidebar}>
+            <div className={classNames("navbar-toggle d-inline", { toggled: props.sidebarOpened })}>
+              <NavbarToggler onClick={toggleCollapse}>
                 <span className="navbar-toggler-bar bar1" />
                 <span className="navbar-toggler-bar bar2" />
                 <span className="navbar-toggler-bar bar3" />
               </NavbarToggler>
+
+
             </div>
-            <NavbarBrand href="#pablo" onClick={(e) => e.preventDefault()}>
+
+
+
+            <NavbarBrand href="#" onClick={(e) => e.preventDefault()}>
+
               {props.brandText}
             </NavbarBrand>
           </div>
@@ -98,94 +208,77 @@ function AdminNavbar(props) {
           </NavbarToggler>
           <Collapse navbar isOpen={collapseOpen}>
             <Nav className="ml-auto" navbar>
-              <InputGroup className="search-bar">
-                <Button color="link" onClick={toggleModalSearch}>
-                  <i className="tim-icons icon-zoom-split" />
-                  <span className="d-lg-none d-md-block">Search</span>
-                </Button>
-              </InputGroup>
-              <UncontrolledDropdown nav>
-                <DropdownToggle
-                  caret
-                  color="default"
-                  data-toggle="dropdown"
-                  nav
-                >
-                  <div className="notification d-none d-lg-block d-xl-block" />
-                  <i className="tim-icons icon-sound-wave" />
-                  <p className="d-lg-none">Notifications</p>
-                </DropdownToggle>
-                <DropdownMenu className="dropdown-navbar" right tag="ul">
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      Mike John responded to your email
-                    </DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      You have 5 more tasks
-                    </DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      Your friend Michael is in town
-                    </DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      Another notification
-                    </DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      Another one
-                    </DropdownItem>
-                  </NavLink>
-                </DropdownMenu>
-              </UncontrolledDropdown>
-              <UncontrolledDropdown nav>
-                <DropdownToggle
-                  caret
-                  color="default"
-                  nav
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <div className="photo">
-                    <img alt="..." src={require("assets/img/anime3.png")} />
-                  </div>
-                  <b className="caret d-none d-lg-block d-xl-block" />
-                  <p className="d-lg-none">Log out</p>
-                </DropdownToggle>
-                <DropdownMenu className="dropdown-navbar" right tag="ul">
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">Profile</DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">Settings</DropdownItem>
-                  </NavLink>
-                  <DropdownItem divider tag="li" />
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">Log out</DropdownItem>
-                  </NavLink>
-                </DropdownMenu>
-              </UncontrolledDropdown>
-              <li className="separator d-lg-none" />
+              {isLoggedIn ? (
+                <>
+                  <UncontrolledDropdown nav>
+                    <DropdownToggle caret color="default" nav>
+                      <i className="tim-icons icon-bell-55" />
+                      <p className="d-lg-none">Oznámení</p>
+                    </DropdownToggle>
+                    <DropdownMenu style={{ color: 'black' }} right>
+                      <DropdownItem>Zde se zobrazí Vaše uporozornění.</DropdownItem>
+
+                      {invitations.map(invitation => (
+                        <DropdownItem key={invitation.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <i className="tim-icons icon-alert-circle-exc" />
+                            <div color="danger" style={{ paddingTop: '5px' }} >
+
+
+                              Máte pozvánku do týmu od -
+                              <span style={{ color: 'green' }}>
+                                {invitation.teamName}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Button className="button-accept" color="link" size="sm" style={{ marginRight: '5px' }} onClick={() => acceptInvitation(invitation.id)}>
+                              <i className="tim-icons icon-check-2" />
+                            </Button>
+                            <Button className="button-reject" color="link" size="sm" onClick={() => rejectInvitation(invitation.id)}>
+                              <i className="tim-icons icon-simple-remove" />
+                            </Button>
+                          </div>
+                        </DropdownItem>
+                      ))}
+
+                    </DropdownMenu>
+
+
+
+
+                  </UncontrolledDropdown>
+                  <UncontrolledDropdown nav></UncontrolledDropdown>
+                  <UncontrolledDropdown nav>
+                    <DropdownToggle caret color="default" nav>
+                      <div className="photo">
+                        <img alt="..." src={require("assets/img/profile-picture.png")} />
+                      </div>
+                      <span className="ml-2">{userInfo.name} {userInfo.surname}</span>
+                    </DropdownToggle>
+                    <DropdownMenu right>
+                      <DropdownItem onClick={() => navigate('/admin/user-profile')}>Můj profil</DropdownItem>
+                      <DropdownItem onClick={() => navigate('/admin/my-team')}>Můj tým</DropdownItem>
+                      <DropdownItem divider />
+                      <DropdownItem onClick={handleLogout}>Odhlásit se</DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                </>
+              ) : (
+                <NavLink tag="li" className="nav-item">
+                  <Button color="primary" onClick={() => navigate('/robogames/login')}>
+                    Log In
+                  </Button>
+                </NavLink>
+              )}
             </Nav>
           </Collapse>
         </Container>
       </Navbar>
-      <Modal
-        modalClassName="modal-search"
-        isOpen={modalSearch}
-        toggle={toggleModalSearch}
-      >
+      <Modal modalClassName="modal-search" isOpen={modalSearch} toggle={toggleModalSearch}>
         <ModalHeader>
           <Input placeholder="SEARCH" type="text" />
-          <button
-            aria-label="Close"
-            className="close"
-            onClick={toggleModalSearch}
-          >
+          <button aria-label="Close" className="close" onClick={toggleModalSearch}>
             <i className="tim-icons icon-simple-remove" />
           </button>
         </ModalHeader>

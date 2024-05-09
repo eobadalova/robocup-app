@@ -1,30 +1,10 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React from "react";
-
-// reactstrap components
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Card,
   CardHeader,
   CardBody,
   CardFooter,
-  CardText,
   FormGroup,
   Form,
   Input,
@@ -33,6 +13,77 @@ import {
 } from "reactstrap";
 
 function UserProfile() {
+  const [userData, setUserData] = useState({
+    id: '',
+    uuid: '',
+    name: '',
+    surname: '',
+    email: '',
+    birthDate: '',
+    roles: [],
+    teamID: ''
+  });
+  const [initialUserData, setInitialUserData] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}api/user/info`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (response.ok) {
+          const jsonResponse = await response.json();
+          setUserData(jsonResponse.data);
+          setInitialUserData(jsonResponse.data); // Store initial data for comparison
+        } else {
+          console.error("Failed to fetch user data:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent form submission reload
+
+    // Check for actual changes and no empty required inputs
+    if (userData.name && userData.surname && userData.birthDate &&
+      (userData.name !== initialUserData.name ||
+        userData.surname !== initialUserData.surname ||
+        userData.birthDate !== initialUserData.birthDate)) {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}api/user/edit`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            name: userData.name,
+            surname: userData.surname,
+            birthDate: userData.birthDate
+          })
+        });
+
+        if (!response.ok) throw new Error('Failed to update user data');
+
+        const result = await response.json();
+        console.log('Uložení se podařilo:', result);
+        alert('Údaje byly úspěšně uloženy.');
+      } catch (error) {
+        console.error('Update selhal:', error);
+        alert('Uložení infomací selhalo. Zkuste to prosím později.');
+      }
+    } else {
+      alert('Žádné změny nebyly provedeny.');
+    }
+  };
+
   return (
     <>
       <div className="content">
@@ -40,59 +91,32 @@ function UserProfile() {
           <Col md="8">
             <Card>
               <CardHeader>
-                <h5 className="title">Edit Profile</h5>
+                <h5 className="title">Upravit informace</h5>
               </CardHeader>
               <CardBody>
-                <Form>
-                  <Row>
-                    <Col className="pr-md-1" md="5">
-                      <FormGroup>
-                        <label>Company (disabled)</label>
-                        <Input
-                          defaultValue="Creative Code Inc."
-                          disabled
-                          placeholder="Company"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="px-md-1" md="3">
-                      <FormGroup>
-                        <label>Username</label>
-                        <Input
-                          defaultValue="michael23"
-                          placeholder="Username"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-md-1" md="4">
-                      <FormGroup>
-                        <label htmlFor="exampleInputEmail1">
-                          Email address
-                        </label>
-                        <Input placeholder="mike@email.com" type="email" />
-                      </FormGroup>
-                    </Col>
-                  </Row>
+                <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col className="pr-md-1" md="6">
                       <FormGroup>
-                        <label>First Name</label>
+                        <label>Jméno</label>
                         <Input
-                          defaultValue="Mike"
-                          placeholder="Company"
+                          value={userData.name}
+                          placeholder="Jméno"
                           type="text"
+                          onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                          required
                         />
                       </FormGroup>
                     </Col>
                     <Col className="pl-md-1" md="6">
                       <FormGroup>
-                        <label>Last Name</label>
+                        <label>Příjmení</label>
                         <Input
-                          defaultValue="Andrew"
-                          placeholder="Last Name"
+                          value={userData.surname}
+                          placeholder="Příjmení"
                           type="text"
+                          onChange={(e) => setUserData({ ...userData, surname: e.target.value })}
+                          required
                         />
                       </FormGroup>
                     </Col>
@@ -100,105 +124,57 @@ function UserProfile() {
                   <Row>
                     <Col md="12">
                       <FormGroup>
-                        <label>Address</label>
+                        <label>Email</label>
                         <Input
-                          defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                          placeholder="Home Address"
-                          type="text"
+                          value={userData.email}
+                          placeholder="Email"
+                          type="email"
+                          onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                          disabled
                         />
                       </FormGroup>
                     </Col>
                   </Row>
                   <Row>
-                    <Col className="pr-md-1" md="4">
+                    <Col md="6">
                       <FormGroup>
-                        <label>City</label>
+                        <label>Datum narození</label>
                         <Input
-                          defaultValue="Mike"
-                          placeholder="City"
-                          type="text"
+                          value={userData.birthDate}
+                          type="date"
+                          onChange={(e) => setUserData({ ...userData, birthDate: e.target.value })}
+                          required
                         />
                       </FormGroup>
                     </Col>
-                    <Col className="px-md-1" md="4">
-                      <FormGroup>
-                        <label>Country</label>
-                        <Input
-                          defaultValue="Andrew"
-                          placeholder="Country"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-md-1" md="4">
-                      <FormGroup>
-                        <label>Postal Code</label>
-                        <Input placeholder="ZIP Code" type="number" />
-                      </FormGroup>
-                    </Col>
+
                   </Row>
-                  <Row>
-                    <Col md="8">
-                      <FormGroup>
-                        <label>About Me</label>
-                        <Input
-                          cols="80"
-                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                            that two seat Lambo."
-                          placeholder="Here can be your description"
-                          rows="4"
-                          type="textarea"
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
+                  <CardFooter>
+                    <Button className="btn-fill" color="primary" type="submit">
+                      Uložit
+                    </Button>
+                  </CardFooter>
                 </Form>
               </CardBody>
-              <CardFooter>
-                <Button className="btn-fill" color="primary" type="submit">
-                  Save
-                </Button>
-              </CardFooter>
             </Card>
           </Col>
           <Col md="4">
             <Card className="card-user">
               <CardBody>
-                <CardText />
                 <div className="author">
-                  <div className="block block-one" />
-                  <div className="block block-two" />
-                  <div className="block block-three" />
-                  <div className="block block-four" />
                   <a href="#pablo" onClick={(e) => e.preventDefault()}>
                     <img
                       alt="..."
                       className="avatar"
-                      src={require("assets/img/emilyz.jpg")}
+                      src={require("assets/img/profile-picture.png")}
                     />
-                    <h5 className="title">Mike Andrew</h5>
+                    <h5 className="title">{userData.name + ' ' + userData.surname}</h5>
                   </a>
-                  <p className="description">Ceo/Co-Founder</p>
-                </div>
-                <div className="card-description">
-                  Do not be scared of the truth because we need to restart the
-                  human foundation in truth And I love you like Kanye loves
-                  Kanye I love Rick Owens’ bed design but the back is...
+                  <p className="description">
+                    {userData.roles.map(role => role.name).join(', ')}
+                  </p>
                 </div>
               </CardBody>
-              <CardFooter>
-                <div className="button-container">
-                  <Button className="btn-icon btn-round" color="facebook">
-                    <i className="fab fa-facebook" />
-                  </Button>
-                  <Button className="btn-icon btn-round" color="twitter">
-                    <i className="fab fa-twitter" />
-                  </Button>
-                  <Button className="btn-icon btn-round" color="google">
-                    <i className="fab fa-google-plus" />
-                  </Button>
-                </div>
-              </CardFooter>
             </Card>
           </Col>
         </Row>
@@ -208,3 +184,5 @@ function UserProfile() {
 }
 
 export default UserProfile;
+
+

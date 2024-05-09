@@ -1,150 +1,133 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
+/**
+* The Sidebar component is a React component that renders the sidebar navigation for the application.
+* It uses the `PerfectScrollbar` library to provide a smooth scrolling experience on Windows platforms.
+* The sidebar displays a logo and a list of navigation links, which are conditionally rendered based on the user's roles and login status.
+* The component also handles the active state of the navigation links based on the current URL.
+*
+* @param {object} props - The component props.
+* @param {boolean} props.rtlActive - A boolean indicating whether the sidebar should be rendered in right-to-left mode.
+* @param {array} props.routes - An array of route objects, each with properties like `path`, `name`, `icon`, and `layout`.
+* @param {object} props.logo - An object with properties `innerLink`, `outterLink`, `text`, and `imgSrc` to configure the sidebar logo.
+* @returns {JSX.Element} - The rendered Sidebar component.
 */
-/*eslint-disable*/
-import React from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-// nodejs library to set properties for components
 import { PropTypes } from "prop-types";
-
-// javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
+import { Nav } from "reactstrap";
+import { BackgroundColorContext } from "contexts/BackgroundColorContext";
+import { useUser } from "contexts/UserContext"; // Make sure the import path for useUser is correct
 
-// reactstrap components
-import { Nav, NavLink as ReactstrapNavLink } from "reactstrap";
-import {
-  BackgroundColorContext,
-  backgroundColors,
-} from "contexts/BackgroundColorContext";
-
-var ps;
-
+// Sidebar component
 function Sidebar(props) {
-  const location = useLocation();
-  const sidebarRef = React.useRef(null);
-  // verifies if routeName is the one active (in browser input)
-  const activeRoute = (routeName) => {
-    return location.pathname === routeName ? "active" : "";
-  };
-  React.useEffect(() => {
+  const location = useLocation(); // Get the current location from react-router-dom
+  const sidebarRef = useRef(null); // Create a ref to the sidebar element
+  const { user } = useUser(); // Assuming useUser is the correct hook to access user context
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false); // State to track if the user is logged in
+
+  // Effect to initialize PerfectScrollbar and check if the user is logged in
+  useEffect(() => {
+    let ps;
     if (navigator.platform.indexOf("Win") > -1) {
       ps = new PerfectScrollbar(sidebarRef.current, {
         suppressScrollX: true,
         suppressScrollY: false,
       });
     }
-    // Specify how to clean up after this effect:
-    return function cleanup() {
-      if (navigator.platform.indexOf("Win") > -1) {
-        ps.destroy();
+    setIsLoggedIn(!!localStorage.getItem('token')); // Check if a token exists in localStorage to determine if the user is logged in
+    return () => {
+      if (ps && navigator.platform.indexOf("Win") > -1) {
+        ps.destroy(); // Destroy PerfectScrollbar instance on component unmount
       }
     };
-  });
+  }, [user]); // Add user as a dependency to re-run this effect when user changes
+
   const linkOnClick = () => {
-    document.documentElement.classList.remove("nav-open");
+    document.documentElement.classList.remove("nav-open"); // Remove the "nav-open" class from the document element when a link is clicked
   };
-  const { routes, rtlActive, logo } = props;
+
+  const activeRoute = (routeName) => {
+    return location.pathname === routeName ? "active" : ""; // Check if the current location matches the routeName and return "active" class if true
+  };
+
+  const { routes, rtlActive, logo } = props; // Destructure props
   let logoImg = null;
   let logoText = null;
+
+  // Render the logo based on the provided logo prop
   if (logo !== undefined) {
     if (logo.outterLink !== undefined) {
       logoImg = (
-        <a
-          href={logo.outterLink}
-          className="simple-text logo-mini"
-          target="_blank"
-          onClick={props.toggleSidebar}
-        >
+        <a href={logo.outterLink} className="simple-text logo-mini" target="_blank" onClick={props.toggleSidebar}>
           <div className="logo-img">
             <img src={logo.imgSrc} alt="react-logo" />
           </div>
         </a>
       );
       logoText = (
-        <a
-          href={logo.outterLink}
-          className="simple-text logo-normal"
-          target="_blank"
-          onClick={props.toggleSidebar}
-        >
+        <a href={logo.outterLink} className="simple-text logo-normal" target="_blank" onClick={props.toggleSidebar}>
           {logo.text}
         </a>
       );
     } else {
       logoImg = (
-        <Link
-          to={logo.innerLink}
-          className="simple-text logo-mini"
-          onClick={props.toggleSidebar}
-        >
+        <Link to={logo.innerLink} className="simple-text logo-mini" onClick={props.toggleSidebar}>
           <div className="logo-img">
             <img src={logo.imgSrc} alt="react-logo" />
           </div>
         </Link>
       );
       logoText = (
-        <Link
-          to={logo.innerLink}
-          className="simple-text logo-normal"
-          onClick={props.toggleSidebar}
-        >
+        <Link to={logo.innerLink} className="simple-text logo-normal" onClick={props.toggleSidebar}>
           {logo.text}
         </Link>
       );
     }
   }
+
+  const rolesString = localStorage.getItem('roles'); // Get the roles string from localStorage
+  const rolesArray = rolesString ? rolesString.split(', ') : []; // Split the roles string into an array or use an empty array if no roles exist
+  const isAdminOrLeaderOrAssistant = rolesArray.some(role => ['ADMIN', 'LEADER', 'ASSISTANT'].includes(role)); // Check if the user has any of the specified roles
+
+  const isAdminOrLeaderOrAssistantOrReferee = rolesArray.some(role => ['ADMIN', 'LEADER', 'ASSISTANT', 'REFEREE'].includes(role)); // Check if the user has any of the specified roles
+
+  console.log("is referee:" + isAdminOrLeaderOrAssistantOrReferee) // Log the value of isAdminOrLeaderOrAssistantOrReferee to the console
+
+
+  // Render the sidebar
   return (
     <BackgroundColorContext.Consumer>
       {({ color }) => (
         <div className="sidebar" data={color}>
           <div className="sidebar-wrapper" ref={sidebarRef}>
-            {logoImg !== null || logoText !== null ? (
-              <div className="logo">
-                {logoImg}
-                {logoText}
-              </div>
-            ) : null}
+            {logoImg !== null || logoText !== null ? <div className="logo">{logoImg}{logoText}</div> : null} {/* Render the logo if it exists */}
             <Nav>
               {routes.map((prop, key) => {
-                if (prop.redirect) return null;
+                if (prop.redirect || (prop.path === "/login" && isLoggedIn)) return null; // Hide login when logged in
+                if (prop.path === "/register") return null; // Always hide register
+                if (prop.path === "/user-management") return null; // Always hide user management
+                if (prop.path === "/competition-management") return null; // Always hide competition management
+                if (prop.path === "/competition-detail") return null; // Always hide competition detail
+                if (prop.path === "/competition-registration") return null; // Always hide competition registration
+                if (prop.path === "/robot-registration") return null; // Always hide robot registration
+                if (prop.path === "/all-teams") return null; // Always hide all teams
+                if (prop.path === "/playground-management") return null; // Always hide playground management
+                if (prop.path === "/robot-confirmation") return null; // Always hide robot confirmation
+                if (prop.path === "/playground-detail") return null; // Always hide playground detail
+                if (prop.path === "/match-generation") return null; // Always hide match generation
+                if (prop.path === "/match-management" && !isAdminOrLeaderOrAssistantOrReferee) return null; // Hide match management if the user doesn't have the required roles
+                if (prop.path === "/admin-dashboard" && !isAdminOrLeaderOrAssistant) return null; // Hide admin dashboard if the user doesn't have the required roles
+                if (prop.path === "/user-profile" && !isLoggedIn) return null; // Show user profile only when logged in
+                if (prop.path === "/my-team" && !isLoggedIn) return null; // Show my team only when logged in
                 return (
-                  <li
-                    className={
-                      activeRoute(prop.path) + (prop.pro ? " active-pro" : "")
-                    }
-                    key={key}
-                  >
-                    <NavLink
-                      to={prop.layout + prop.path}
-                      className="nav-link"
-                      onClick={props.toggleSidebar}
-                    >
+                  <li className={activeRoute(prop.layout + prop.path) + (prop.pro ? " active-pro" : "")} key={key}>
+                    <NavLink to={prop.layout + prop.path} className="nav-link" onClick={linkOnClick}>
                       <i className={prop.icon} />
                       <p>{rtlActive ? prop.rtlName : prop.name}</p>
                     </NavLink>
                   </li>
                 );
               })}
-              <li className="active-pro">
-                <ReactstrapNavLink href="https://www.creative-tim.com/product/black-dashboard-pro-react?ref=bdr-user-archive-sidebar-upgrade-pro">
-                  <i className="tim-icons icon-spaceship" />
-                  <p>Upgrade to PRO</p>
-                </ReactstrapNavLink>
-              </li>
             </Nav>
           </div>
         </div>
@@ -154,20 +137,12 @@ function Sidebar(props) {
 }
 
 Sidebar.propTypes = {
-  // if true, then instead of the routes[i].name, routes[i].rtlName will be rendered
-  // insde the links of this component
   rtlActive: PropTypes.bool,
   routes: PropTypes.arrayOf(PropTypes.object),
   logo: PropTypes.shape({
-    // innerLink is for links that will direct the user within the app
-    // it will be rendered as <Link to="...">...</Link> tag
     innerLink: PropTypes.string,
-    // outterLink is for links that will direct the user outside the app
-    // it will be rendered as simple <a href="...">...</a> tag
     outterLink: PropTypes.string,
-    // the text of the logo
     text: PropTypes.node,
-    // the image src of the logo
     imgSrc: PropTypes.string,
   }),
 };

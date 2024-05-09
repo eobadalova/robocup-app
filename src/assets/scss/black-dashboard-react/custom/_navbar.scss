@@ -6,8 +6,8 @@
 
   .photo {
     display: inline-block;
-    height: 30px;
-    width: 30px;
+    height: 50px;
+    width: 50px;
     border-radius: 50%;
     vertical-align: middle;
     overflow: hidden;
@@ -15,6 +15,10 @@
         width: 100%;
       }
   }
+
+  i.tim-icons.icon-bell-55 {
+    margin-top: 15px;
+}
 
   .navbar-wrapper {
     display: flex;
@@ -148,7 +152,7 @@
 }
 
 .navbar-nav li{
-  padding: 0 10px;
+  padding: 0 5px;
   a{
     color: $white;
   }

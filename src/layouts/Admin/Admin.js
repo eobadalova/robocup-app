@@ -1,3 +1,12 @@
+/**
+* The `Admin` component is the main layout component for the admin section of the application. It handles the rendering of the sidebar, navbar, and main content area, as well as the initialization and cleanup of the perfect scrollbar functionality.
+*
+* The component uses the `BackgroundColorContext` to allow for dynamic changes to the background color of the application.
+*
+* The `Admin` component also manages the state of the sidebar, toggling it open and closed on small devices.
+*
+* The component renders the routes defined in the `routes.js` file, and uses the `getBrandText` function to determine the current brand text to display in the navbar.
+*/
 /*!
 
 =========================================================
@@ -28,113 +37,113 @@ import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
 
 import routes from "routes.js";
 
-import logo from "assets/img/react-logo.png";
+import logo from "logoRG.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
 
 var ps;
 
 function Admin(props) {
-  const location = useLocation();
-  const mainPanelRef = React.useRef(null);
-  const [sidebarOpened, setsidebarOpened] = React.useState(
-    document.documentElement.className.indexOf("nav-open") !== -1
-  );
-  React.useEffect(() => {
-    if (navigator.platform.indexOf("Win") > -1) {
-      document.documentElement.className += " perfect-scrollbar-on";
-      document.documentElement.classList.remove("perfect-scrollbar-off");
-      ps = new PerfectScrollbar(mainPanelRef.current, {
-        suppressScrollX: true,
-      });
-      let tables = document.querySelectorAll(".table-responsive");
-      for (let i = 0; i < tables.length; i++) {
-        ps = new PerfectScrollbar(tables[i]);
-      }
-    }
-    // Specify how to clean up after this effect:
-    return function cleanup() {
-      if (navigator.platform.indexOf("Win") > -1) {
-        ps.destroy();
-        document.documentElement.classList.add("perfect-scrollbar-off");
-        document.documentElement.classList.remove("perfect-scrollbar-on");
-      }
-    };
-  });
-  React.useEffect(() => {
-    if (navigator.platform.indexOf("Win") > -1) {
-      let tables = document.querySelectorAll(".table-responsive");
-      for (let i = 0; i < tables.length; i++) {
-        ps = new PerfectScrollbar(tables[i]);
-      }
-    }
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-    if (mainPanelRef.current) {
-      mainPanelRef.current.scrollTop = 0;
-    }
-  }, [location]);
-  // this function opens and closes the sidebar on small devices
-  const toggleSidebar = () => {
-    document.documentElement.classList.toggle("nav-open");
-    setsidebarOpened(!sidebarOpened);
-  };
-  const getRoutes = (routes) => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
-        return (
-          <Route path={prop.path} element={prop.component} key={key} exact />
-        );
-      } else {
-        return null;
-      }
-    });
-  };
-  const getBrandText = (path) => {
-    for (let i = 0; i < routes.length; i++) {
-      if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
-        return routes[i].name;
-      }
-    }
-    return "Brand";
-  };
-  return (
-    <BackgroundColorContext.Consumer>
-      {({ color, changeColor }) => (
-        <React.Fragment>
-          <div className="wrapper">
-            <Sidebar
-              routes={routes}
-              logo={{
-                outterLink: "https://www.creative-tim.com/",
-                text: "Creative Tim",
-                imgSrc: logo,
-              }}
-              toggleSidebar={toggleSidebar}
-            />
-            <div className="main-panel" ref={mainPanelRef} data={color}>
-              <AdminNavbar
-                brandText={getBrandText(location.pathname)}
-                toggleSidebar={toggleSidebar}
-                sidebarOpened={sidebarOpened}
-              />
-              <Routes>
-                {getRoutes(routes)}
-                <Route
-                  path="/"
-                  element={<Navigate to="/admin/dashboard" replace />}
-                />
-              </Routes>
-              {
-                // we don't want the Footer to be rendered on map page
-                location.pathname === "/admin/maps" ? null : <Footer fluid />
-              }
-            </div>
-          </div>
-          <FixedPlugin bgColor={color} handleBgClick={changeColor} />
-        </React.Fragment>
-      )}
-    </BackgroundColorContext.Consumer>
-  );
+const location = useLocation();
+const mainPanelRef = React.useRef(null);
+const [sidebarOpened, setsidebarOpened] = React.useState(
+document.documentElement.className.indexOf("nav-open") !== -1
+);
+React.useEffect(() => {
+if (navigator.platform.indexOf("Win") > -1) {
+document.documentElement.className += " perfect-scrollbar-on";
+document.documentElement.classList.remove("perfect-scrollbar-off");
+ps = new PerfectScrollbar(mainPanelRef.current, {
+suppressScrollX: true,
+});
+let tables = document.querySelectorAll(".table-responsive");
+for (let i = 0; i < tables.length; i++) {
+ps = new PerfectScrollbar(tables[i]);
+}
+}
+// Specify how to clean up after this effect:
+return function cleanup() {
+if (navigator.platform.indexOf("Win") > -1) {
+ps.destroy();
+document.documentElement.classList.add("perfect-scrollbar-off");
+document.documentElement.classList.remove("perfect-scrollbar-on");
+}
+};
+});
+React.useEffect(() => {
+if (navigator.platform.indexOf("Win") > -1) {
+let tables = document.querySelectorAll(".table-responsive");
+for (let i = 0; i < tables.length; i++) {
+ps = new PerfectScrollbar(tables[i]);
+}
+}
+document.documentElement.scrollTop = 0;
+document.scrollingElement.scrollTop = 0;
+if (mainPanelRef.current) {
+mainPanelRef.current.scrollTop = 0;
+}
+}, [location]);
+// this function opens and closes the sidebar on small devices
+const toggleSidebar = () => {
+document.documentElement.classList.toggle("nav-open");
+setsidebarOpened(!sidebarOpened);
+};
+const getRoutes = (routes) => {
+return routes.map((prop, key) => {
+if (prop.layout === "/admin") {
+return (
+<Route path={prop.path} element={prop.component} key={key} exact />
+);
+} else {
+return null;
+}
+});
+};
+const getBrandText = (path) => {
+for (let i = 0; i < routes.length; i++) {
+if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
+return routes[i].name;
+}
+}
+return "Brand";
+};
+return (
+<BackgroundColorContext.Consumer>
+{({ color, changeColor }) => (
+<React.Fragment>
+<div className="wrapper">
+<Sidebar
+routes={routes}
+logo={{
+outterLink: "https://utb.cz/",
+text: "Robogames",
+imgSrc: logo,
+}}
+toggleSidebar={toggleSidebar}
+/>
+<div className="main-panel" ref={mainPanelRef} data={color}>
+<AdminNavbar
+brandText={getBrandText(location.pathname)}
+toggleSidebar={toggleSidebar}
+sidebarOpened={sidebarOpened}
+/>
+<Routes>
+{getRoutes(routes)}
+<Route
+path="/"
+element={<Navigate to="/admin/dashboard" replace />}
+/>
+</Routes>
+{
+// we don't want the Footer to be rendered on map page
+location.pathname === "/admin/maps" ? null : <Footer fluid />
+}
+</div>
+</div>
+<FixedPlugin bgColor={color} handleBgClick={changeColor} />
+</React.Fragment>
+)}
+</BackgroundColorContext.Consumer>
+);
 }
 
 export default Admin;

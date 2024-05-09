@@ -17,77 +17,221 @@
 */
 import Dashboard from "views/Dashboard.js";
 import Icons from "views/Icons.js";
-import Map from "views/Map.js";
+
 import Notifications from "views/Notifications.js";
 import Rtl from "views/Rtl.js";
 import TableList from "views/TableList.js";
-import Typography from "views/Typography.js";
+
 import UserProfile from "views/UserProfile.js";
+import Login from "views/Login.js";
+import Register from "views/Register.js";
+import UserManagement from "views/UserManagement";
+import AdminDashboard from "views/AdminDashboard";
+import CompetitionManagement from "views/CompetitionManagement";
+import CompetitionDetail from "views/CompetitionDetail";
+import AllTeams from "views/AllTeams";
+import MyTeam from "views/MyTeam";
+import CompetitionRegistration from "views/CompetitionRegistration";
+import RobotRegistration from "views/RobotRegistration";
+import PlaygroundManagement from "views/PlaygroundManagement";
+import RobotConfirmation from "views/RobotConfirmation";
+import MatchGeneration from "views/MatchGeneration";
+import MatchManagement from "views/MatchManagement";
+import PlaygroundDetail from "views/PlaygroundDetail";
+import CompetitionResults from "views/CompetitonResults";
+import Contact from "views/Contact";
+import Rules from "views/Rules";
+
 
 var routes = [
   {
-    path: "/dashboard",
-    name: "Dashboard",
-    rtlName: "لوحة القيادة",
-    icon: "tim-icons icon-chart-pie-36",
-    component: <Dashboard />,
-    layout: "/admin",
+    path: "/match-management",
+    name: "Vyhodnocování zápasů",
+    rtlName: "",
+    icon: "tim-icons icon-puzzle-10",
+    component: <MatchManagement />,
+    layout: "/admin", 
   },
   {
-    path: "/icons",
-    name: "Icons",
-    rtlName: "الرموز",
-    icon: "tim-icons icon-atom",
-    component: <Icons />,
-    layout: "/admin",
-  },
-  {
-    path: "/map",
-    name: "Map",
-    rtlName: "خرائط",
-    icon: "tim-icons icon-pin",
-    component: <Map />,
-    layout: "/admin",
-  },
-  {
-    path: "/notifications",
-    name: "Notifications",
-    rtlName: "إخطارات",
-    icon: "tim-icons icon-bell-55",
-    component: <Notifications />,
-    layout: "/admin",
+    path: "/admin-dashboard",
+    name: "Admin menu",
+    rtlName: "",
+    icon: "tim-icons icon-settings-gear-63",
+    component: <AdminDashboard />,
+    layout: "/admin", 
   },
   {
     path: "/user-profile",
-    name: "User Profile",
-    rtlName: "ملف تعريفي للمستخدم",
+    name: "Můj profil",
+    rtlName: "",
     icon: "tim-icons icon-single-02",
     component: <UserProfile />,
     layout: "/admin",
   },
   {
-    path: "/tables",
-    name: "Table List",
-    rtlName: "قائمة الجدول",
-    icon: "tim-icons icon-puzzle-10",
+    path: "/my-team",
+    name: "Můj tým",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <MyTeam />,
+    layout: "/admin", 
+  },
+
+  {
+    path: "/dashboard",
+    name: "Domů",
+    rtlName: "",
+    icon: "tim-icons icon-app",
+    component: <Dashboard />,
+    layout: "/admin",
+  },
+  {
+    path: "/disciplines",
+    name: "Disciplíny",
+    rtlName: "",
+    icon: "tim-icons icon-components",
     component: <TableList />,
     layout: "/admin",
   },
+
   {
-    path: "/typography",
-    name: "Typography",
-    rtlName: "طباعة",
-    icon: "tim-icons icon-align-center",
-    component: <Typography />,
+    path: "/competition-results",
+    name: "Výsledky",
+    rtlName: "",
+    icon: "tim-icons icon-book-bookmark",
+    component: <CompetitionResults />,
     layout: "/admin",
   },
   {
-    path: "/rtl-support",
-    name: "RTL Support",
-    rtlName: "ار تي ال",
-    icon: "tim-icons icon-world",
-    component: <Rtl />,
-    layout: "/rtl",
+    path: "/rules",
+    name: "Pravidla",
+    rtlName: "",
+    icon: "tim-icons icon-bulb-63",
+    component: <Rules />,
+    layout: "/admin",
   },
+
+
+  {
+    path: "/all-teams",
+    name: "Všechny týmy",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <AllTeams />,
+    layout: "/admin", 
+  },
+
+  {
+    path: "/contact-us",
+    name: "Kontakt",
+    rtlName: "",
+    icon: "tim-icons icon-chat-33",
+    component: <Contact />,
+    layout: "/admin",
+  },
+
+  {
+    path: "/login",
+    name: "Přihlášení",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <Login />,
+    layout: "/robogames", // Set layout to an empty string or simply omit this line
+  },
+
+  {
+    path: "/register",
+    name: "Registrace",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <Register />,
+    layout: "/robogames", // Set layout to an empty string or simply omit this line
+  },
+  {
+    path: "/register",
+    name: "Registrace",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <Register />,
+    layout: "/robogames", // Set layout to an empty string or simply omit this line
+  },
+  
+  {
+    path: "/user-management",
+    name: "Správa uživatelů",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <UserManagement />,
+    layout: "/admin", 
+  },
+  {
+    path: "/competition-management",
+    name: "Správa soutěží",
+    rtlName: "",
+    icon: "tim-icons icon-single-02",
+    component: <CompetitionManagement />,
+    layout: "/admin", 
+  },
+
+  {
+    path: "/competition-detail",
+    name: "Účastníci soutěže",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <CompetitionDetail />,
+    layout: "/admin", 
+  },
+  {
+    path: "/competition-registration",
+    name: "Registrace týmu do soutěže",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <CompetitionRegistration />,
+    layout: "/admin", 
+  },
+  {
+    path: "/robot-registration",
+    name: "Registrace robotů",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <RobotRegistration />,
+    layout: "/admin", 
+  },
+  {
+    path: "/playground-management",
+    name: "Správa hrišť",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <PlaygroundManagement />,
+    layout: "/admin", 
+  },
+  {
+    path: "/robot-confirmation",
+    name: "Potvrzení robotů",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <RobotConfirmation />,
+    layout: "/admin", 
+  },
+  {
+    path: "/match-generation",
+    name: "Potvrzení robotů",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <MatchGeneration />,
+    layout: "/admin", 
+  },
+  {
+    path: "/playground-detail",
+    name: "Potvrzení robotů",
+    rtlName: "",
+    icon: "tim-icons icon-molecule-40",
+    component: <PlaygroundDetail />,
+    layout: "/admin", 
+  },
+
+
+
+
 ];
 export default routes;
